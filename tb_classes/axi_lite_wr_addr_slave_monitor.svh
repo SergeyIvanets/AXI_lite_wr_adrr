@@ -23,7 +23,7 @@ endclass : axi_lite_wr_addr_slave_monitor
 
 function void axi_lite_wr_addr_slave_monitor::connect_phase(uvm_phase phase);
   super.connect_phase(phase);
-    if (!uvm_config_db #(virtual axi_lite_wr_addr_if)::get(this, "", "vif", vif)) begin
+    if (!uvm_config_db #(virtual axi_lite_wr_addr_if)::get(this, "", "axi_if", vif)) begin
       `uvm_fatal("NOVIF", "Virtual interface not set for the slave monitor.")
     end
   endfunction : connect_phase
@@ -37,8 +37,6 @@ function void axi_lite_wr_addr_slave_monitor::connect_phase(uvm_phase phase);
         // Create a new transaction to store observed values
         trans_collected = axi_lite_wr_addr_transaction::type_id::create("trans_collected");
         trans_collected.AWADDR  = vif.AWADDR;
-        trans_collected.AWVALID = vif.AWVALID;
-        trans_collected.AWREADY = vif.AWREADY;  
 
         item_collected_port.write(trans_collected);
 

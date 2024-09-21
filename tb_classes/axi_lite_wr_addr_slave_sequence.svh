@@ -13,9 +13,6 @@ class axi_lite_wr_addr_slave_sequence extends uvm_sequence #(axi_lite_wr_addr_tr
     repeat (trans_count) begin
       trans = axi_lite_wr_addr_transaction::type_id::create("trans");
       
-      // Example of overriding LATENCY range
-      assert(trans.randomize() with { LATENCY inside {[5:15]}; });  
-
       start_item(trans);
       finish_item(trans);
     end

@@ -1,5 +1,5 @@
+`timescale 100ps/100ps
 module top;
-
   import uvm_pkg::*;                  // UVM package
   `include "uvm_macros.svh"           // UVM macros
 

@@ -2,8 +2,8 @@ class axi_lite_wr_addr_slave_driver extends uvm_driver #(axi_lite_wr_addr_transa
   `uvm_component_utils(axi_lite_wr_addr_slave_driver);
 
   virtual axi_lite_wr_addr_if vif;
-
-  int LATENCY;
+  axi_lite_wr_addr_transaction trans;
+  int latency_value;
 
   function new(string name = "axi_lite_wr_addr_slave_driver", uvm_component parent = null);
     super.new(name, parent);
@@ -14,28 +14,25 @@ class axi_lite_wr_addr_slave_driver extends uvm_driver #(axi_lite_wr_addr_transa
   extern virtual protected task get_and_drive();
   extern virtual protected task reset_signals();
   extern virtual task run_phase(uvm_phase phase);
-  extern virtual protected task drive_transfer(axi_lite_wr_addr_transaction trans);
+  extern virtual protected task drive_transfer();
 
 endclass : axi_lite_wr_addr_slave_driver
 //---------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //---------------------------------------------------------------------------------------
 
-function void axi_lite_wr_addr_test::build_phase(uvm_phase phase);
+function void axi_lite_wr_addr_slave_driver::build_phase(uvm_phase phase);
   super.build_phase(phase);
   
   if (!uvm_config_db #(int)::get(this, "", "LATENCY", latency_value)) begin
     `uvm_fatal("NO_LATENCY", "LATENCY value not set in the config DB.");
   end
-
-  // Assign the retrieved value to the class variable
-  this.LATENCY = latency_value;  // Store the LATENCY for future use
 endfunction : build_phase
 
 // UVM connect_phase - gets the vif as a config property
 function void axi_lite_wr_addr_slave_driver::connect_phase(uvm_phase phase);
   super.connect_phase(phase);
-  if (!uvm_config_db #(virtual axi_lite_wr_addr_if)::get(this, get_full_name(), "vif", vif))
+  if (!uvm_config_db #(virtual axi_lite_wr_addr_if)::get(this, get_full_name(), "axi_if", vif))
     `uvm_error("NOVIF", {"virtual interface must be set for: ", get_full_name(), ".vif"})
 endfunction : connect_phase
 
@@ -49,8 +46,8 @@ endtask : run_phase
 // Manages the interaction between driver and sequencer
 task axi_lite_wr_addr_slave_driver::get_and_drive();
   forever begin
-    seq_item_port.get_next_item(req);
-      drive_transfer(req);
+    seq_item_port.get_next_item(trans);
+      drive_transfer();
     seq_item_port.item_done();
   end
 endtask : get_and_drive
@@ -65,9 +62,9 @@ task axi_lite_wr_addr_slave_driver::reset_signals();
 endtask : reset_signals
 
 // Drive AWREADY in response to AWVALID from master
-task axi_lite_wr_addr_slave_driver::drive_transfer(axi_lite_wr_addr_transaction trans);
+task axi_lite_wr_addr_slave_driver::drive_transfer();
   int delay_counter; 
-  delay_counter = LATENCY;
+  delay_counter = latency_value;
 
   wait (vif.AWVALID);
 

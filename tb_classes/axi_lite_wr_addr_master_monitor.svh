@@ -23,7 +23,7 @@ endclass : axi_lite_wr_addr_master_monitor
 
 function void axi_lite_wr_addr_master_monitor::connect_phase(uvm_phase phase);
   super.connect_phase(phase);
-  if (!uvm_config_db #(virtual axi_lite_wr_addr_if)::get(this, "", "vif", vif)) begin
+  if (!uvm_config_db #(virtual axi_lite_wr_addr_if)::get(this, "", "axi_if", vif)) begin
     `uvm_fatal("NOVIF", "Virtual interface not set for the master monitor.")
   end
 endfunction : connect_phase
@@ -33,15 +33,16 @@ task axi_lite_wr_addr_master_monitor::run_phase(uvm_phase phase);
 
   forever begin
     @(posedge vif.clk);
+    
     if (vif.AWVALID) begin
       // Create a new transaction object
       trans_collected = axi_lite_wr_addr_transaction::type_id::create("trans_collected");
       trans_collected.AWADDR  = vif.AWADDR;
-      trans_collected.AWVALID = vif.AWVALID;
-      trans_collected.AWREADY = vif.AWREADY;
 
+      // Send the collected transaction through the analysis port
       item_collected_port.write(trans_collected);
 
+      // Log the transaction and increment the transaction count
       `uvm_info(get_type_name(), $sformatf("Transfer collected master monitor:\n%s",
                                           trans_collected.sprint()), UVM_HIGH);
       num_transactions++;
@@ -52,4 +53,4 @@ endtask : run_phase
 function void axi_lite_wr_addr_master_monitor::report_phase(uvm_phase phase);
   `uvm_info(get_type_name(), $sformatf("Report: Master monitor collected %0d transfers", 
                                         num_transactions), UVM_LOW);
-endfunction : report_phase  
+endfunction : report_phase

@@ -26,18 +26,14 @@ endclass : axi_lite_wr_addr_slave_agent
 function void axi_lite_wr_addr_slave_agent::build_phase(uvm_phase phase);
     super.build_phase(phase);
 
-    // Get the LATENCY value from the UVM config DB
-    if (!uvm_config_db#(int)::get(this, "", "LATENCY", LATENCY)) begin
-        `uvm_fatal("NO_LATENCY", "LATENCY value not set in UVM config DB.");
-    end
-
     if (!uvm_config_db#(axi_lite_wr_addr_slave_config)::get(this, "", "cfg", cfg)) begin
-        `uvm_fatal("NO_CFG", "Configuration object not set for the slave agent.")
+      `uvm_fatal("build_phase", "Slave agent: Unable to get config from uvm_config_db");
     end
-
-    if (!uvm_config_db#(uvm_active_passive_enum)::get(this, "", "is_active", is_active)) begin
-        `uvm_warning("NO_CFG", "is_active not set for slave agent. Defaulting to UVM_ACTIVE.")
-        is_active = UVM_ACTIVE;
+    
+    vif = cfg.vif;
+      
+    if (cfg == null) begin
+      `uvm_fatal("NO_CFG", "Slave agent configuration not provided.");
     end
 
     monitor = axi_lite_wr_addr_slave_monitor::type_id::create("monitor", this);

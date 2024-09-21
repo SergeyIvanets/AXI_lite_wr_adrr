@@ -4,7 +4,7 @@ class axi_lite_wr_addr_master_agent extends uvm_agent;
   uvm_active_passive_enum is_active = UVM_ACTIVE;
 
   virtual axi_lite_wr_addr_if vif;
-  axi_lite_wr_addr_slave_config cfg;
+  axi_lite_wr_addr_master_config cfg;
 
   axi_lite_wr_addr_master_driver driver;
   axi_lite_wr_addr_master_sequencer sequencer;
@@ -25,14 +25,14 @@ endclass : axi_lite_wr_addr_master_agent
 
 function void axi_lite_wr_addr_master_agent::build_phase(uvm_phase phase);
 super.build_phase(phase);
+if (!uvm_config_db#(axi_lite_wr_addr_master_config)::get(this, "", "cfg", cfg)) begin
+  `uvm_fatal("build_phase", "Master agent: Unable to get config from uvm_config_db");
+end
 
-  if (!uvm_config_db#(axi_lite_wr_addr_master_config)::get(this, "", "cfg", cfg)) begin
-    `uvm_fatal("NO_CFG", "Configuration object not set for the master agent.")
-  end
+vif = cfg.vif;
 
-  if (!uvm_config_db#(uvm_active_passive_enum)::get(this, "", "is_active", is_active)) begin
-    `uvm_warning("NO_CFG", "is_active not set for master agent. Defaulting to UVM_ACTIVE.")
-    is_active = UVM_ACTIVE;
+  if (cfg == null) begin
+    `uvm_fatal("NO_CFG", "Master agent configuration not provided.");
   end
 
   monitor = axi_lite_wr_addr_master_monitor::type_id::create("monitor", this);
@@ -42,12 +42,9 @@ super.build_phase(phase);
   end
 endfunction : build_phase
 
+
 function void axi_lite_wr_addr_master_agent::connect_phase(uvm_phase phase);
   super.connect_phase(phase);
-
-  if (cfg.vif == null) begin
-    `uvm_fatal("NO_VIF", "Master agent: Virtual interface not set in the configuration object.")
-  end
 
   if (cfg.is_active == UVM_ACTIVE) begin
     driver.vif = cfg.vif;
