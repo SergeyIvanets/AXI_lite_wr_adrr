@@ -35,9 +35,9 @@ task axi_lite_wr_addr_master_monitor::run_phase(uvm_phase phase);
     @(posedge vif.clk);
     
     if (vif.AWVALID) begin
-      // Create a new transaction object
       trans_collected = axi_lite_wr_addr_transaction::type_id::create("trans_collected");
       trans_collected.AWADDR  = vif.AWADDR;
+      `uvm_info(get_type_name(), $sformatf("AWADDR collected by master monitor:%h", trans_collected.AWADDR), UVM_LOW);
 
       // Send the collected transaction through the analysis port
       item_collected_port.write(trans_collected);

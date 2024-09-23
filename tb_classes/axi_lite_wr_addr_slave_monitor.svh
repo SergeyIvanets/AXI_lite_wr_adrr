@@ -37,6 +37,8 @@ function void axi_lite_wr_addr_slave_monitor::connect_phase(uvm_phase phase);
         // Create a new transaction to store observed values
         trans_collected = axi_lite_wr_addr_transaction::type_id::create("trans_collected");
         trans_collected.AWADDR  = vif.AWADDR;
+        `uvm_info(get_type_name(), $sformatf("AWADDR collected by slave monitor:%h", trans_collected.AWADDR), UVM_LOW);
+
 
         item_collected_port.write(trans_collected);
 
