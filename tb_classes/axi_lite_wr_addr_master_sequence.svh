@@ -21,6 +21,7 @@ class axi_lite_wr_addr_master_sequence extends uvm_sequence #(axi_lite_wr_addr_t
 
       // Optionally, constrain AWADDR if needed (e.g., specific address range)
       trans.AWADDR = $urandom_range(32'h0000_0000, 32'hFFFF_FFFF);
+      `uvm_info(get_type_name(), $sformatf("\n "), UVM_LOW);
       `uvm_info(get_type_name(), $sformatf("Master sequence trans.AWADDR: %0h", trans.AWADDR), UVM_LOW);
 
       start_item(trans);

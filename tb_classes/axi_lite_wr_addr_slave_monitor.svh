@@ -2,7 +2,7 @@ class axi_lite_wr_addr_slave_monitor extends uvm_monitor;
   `uvm_component_utils(axi_lite_wr_addr_slave_monitor)
 
   virtual axi_lite_wr_addr_if vif;
-
+  axi_lite_wr_addr_scoreboard scoreboard;  
   uvm_analysis_port #(axi_lite_wr_addr_transaction) item_collected_port;
   int unsigned num_transactions = 0;
 
@@ -38,10 +38,7 @@ function void axi_lite_wr_addr_slave_monitor::connect_phase(uvm_phase phase);
         trans_collected = axi_lite_wr_addr_transaction::type_id::create("trans_collected");
         trans_collected.AWADDR  = vif.AWADDR;
         `uvm_info(get_type_name(), $sformatf("AWADDR collected by slave monitor:%h", trans_collected.AWADDR), UVM_LOW);
-
-
         item_collected_port.write(trans_collected);
-
         `uvm_info(get_type_name(), $sformatf("Transfer collected slave monitor:\n%s",
                                             trans_collected.sprint()), UVM_HIGH);
         num_transactions++;

@@ -43,5 +43,5 @@ function void axi_lite_wr_addr_env::connect_phase(uvm_phase phase);
   slave_agent.cfg = slave_cfg;
 
   master_agent.monitor.item_collected_port.connect(scoreboard.master_analysis_export);
-  slave_agent.monitor.item_collected_port.connect(scoreboard.slave_analysis_export);
+  slave_agent.monitor.item_collected_port.connect(scoreboard.slave_analysis_fifo.analysis_export);
 endfunction : connect_phase
