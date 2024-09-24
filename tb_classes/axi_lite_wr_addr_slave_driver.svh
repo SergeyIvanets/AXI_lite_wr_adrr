@@ -1,5 +1,6 @@
 class axi_lite_wr_addr_slave_driver extends uvm_driver #(axi_lite_wr_addr_transaction);
   `uvm_component_utils(axi_lite_wr_addr_slave_driver);
+  const string report_id="SLAVE DRIVER";
 
   virtual axi_lite_wr_addr_if vif;
   axi_lite_wr_addr_transaction trans;
@@ -25,7 +26,7 @@ function void axi_lite_wr_addr_slave_driver::build_phase(uvm_phase phase);
   super.build_phase(phase);
   
   if (!uvm_config_db #(int)::get(this, "", "LATENCY", latency_value)) begin
-    `uvm_fatal("NO_LATENCY", "LATENCY value not set in the config DB.");
+    `uvm_fatal(report_id, "LATENCY value not set in the config DB.");
   end
 endfunction : build_phase
 
@@ -33,7 +34,7 @@ endfunction : build_phase
 function void axi_lite_wr_addr_slave_driver::connect_phase(uvm_phase phase);
   super.connect_phase(phase);
   if (!uvm_config_db #(virtual axi_lite_wr_addr_if)::get(this, get_full_name(), "axi_if", vif))
-    `uvm_error("NOVIF", {"virtual interface must be set for: ", get_full_name(), ".vif"})
+    `uvm_error(report_id, {"virtual interface must be set for: ", get_full_name(), ".vif"})
 endfunction : connect_phase
 
 task axi_lite_wr_addr_slave_driver::run_phase(uvm_phase phase);
@@ -56,7 +57,7 @@ endtask : get_and_drive
 task axi_lite_wr_addr_slave_driver::reset_signals();
   forever begin
     @(negedge vif.reset_n);  // Wait for reset signal to go low
-    uvm_report_info("AXI_WR_ADDR_SLAVE_DRIVER", "Reset observed", UVM_MEDIUM);
+    uvm_report_info(report_id, "Reset observed", UVM_MEDIUM);
     vif.AWREADY <= 1'b0; 
   end
 endtask : reset_signals

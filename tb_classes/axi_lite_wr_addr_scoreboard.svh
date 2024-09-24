@@ -1,5 +1,6 @@
 class axi_lite_wr_addr_scoreboard extends uvm_scoreboard;
   `uvm_component_utils(axi_lite_wr_addr_scoreboard)
+  const string report_id="SCOREBOARD";
 
   uvm_analysis_imp #(axi_lite_wr_addr_transaction, axi_lite_wr_addr_scoreboard) master_analysis_export;
   uvm_tlm_analysis_fifo #(axi_lite_wr_addr_transaction) slave_analysis_fifo;
@@ -26,7 +27,7 @@ endclass : axi_lite_wr_addr_scoreboard
 
   function void axi_lite_wr_addr_scoreboard::write(axi_lite_wr_addr_transaction t);
     master_trans_queue.push_back(t);
-    `uvm_info("SCOREBOARD", $sformatf("Master transaction collected: %h", t.AWADDR), UVM_LOW);
+    `uvm_info(report_id, $sformatf("Master transaction collected: %h", t.AWADDR), UVM_LOW);
     compare_transactions();
   endfunction : write
 
@@ -35,7 +36,7 @@ endclass : axi_lite_wr_addr_scoreboard
 
     while (slave_analysis_fifo.try_get(slave_trans)) begin
       slave_trans_queue.push_back(slave_trans);
-      `uvm_info("SCOREBOARD", $sformatf("Slave transaction collected: %h", slave_trans.AWADDR), UVM_LOW);
+      `uvm_info(report_id, $sformatf("Slave transaction collected: %h", slave_trans.AWADDR), UVM_LOW);
     compare_transactions();
     end
   endtask : handle_slave_transactions
@@ -53,14 +54,14 @@ endclass : axi_lite_wr_addr_scoreboard
     if (master_trans_queue.size() > 0 && slave_trans_queue.size() > 0) begin
       axi_lite_wr_addr_transaction master_trans = master_trans_queue.pop_front();
       axi_lite_wr_addr_transaction slave_trans = slave_trans_queue.pop_front();
-      `uvm_info("SCOREBOARD", $sformatf("Master transaction collected in compare_transacti: %h", master_trans.AWADDR), UVM_LOW);
-      `uvm_info("SCOREBOARD", $sformatf("Slave transaction collected in compare_transacti: %h", slave_trans.AWADDR), UVM_LOW);
+      `uvm_info(report_id, $sformatf("Master transaction collected in compare_transacti: %h", master_trans.AWADDR), UVM_LOW);
+      `uvm_info(report_id, $sformatf("Slave transaction collected in compare_transacti: %h", slave_trans.AWADDR), UVM_LOW);
 
       if (master_trans.AWADDR != slave_trans.AWADDR) begin
-        `uvm_error("SCOREBOARD", $sformatf("Address mismatch: Master AWADDR = %0h, Slave AWADDR = %0h", 
+        `uvm_error(report_id, $sformatf("Address mismatch: Master AWADDR = %0h, Slave AWADDR = %0h", 
                   master_trans.AWADDR, slave_trans.AWADDR));
       end else begin
-        `uvm_info("SCOREBOARD", $sformatf("Address match: Master AWADDR = %h, Slave AWADDR = %h", 
+        `uvm_info(report_id, $sformatf("Address match: Master AWADDR = %h, Slave AWADDR = %h", 
                   master_trans.AWADDR, slave_trans.AWADDR), UVM_LOW);
       end
     end

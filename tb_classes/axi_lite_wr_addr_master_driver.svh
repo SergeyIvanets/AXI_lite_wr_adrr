@@ -1,5 +1,6 @@
 class axi_lite_wr_addr_master_driver extends uvm_driver #(axi_lite_wr_addr_transaction);
   `uvm_component_utils(axi_lite_wr_addr_master_driver)
+  const string report_id="MASTER DRIVER";
   
   axi_lite_wr_addr_transaction trans;
   virtual axi_lite_wr_addr_if vif;
@@ -22,7 +23,7 @@ endclass : axi_lite_wr_addr_master_driver
 function void axi_lite_wr_addr_master_driver::connect_phase(uvm_phase phase);
   super.connect_phase(phase);
   if (!uvm_config_db #(virtual axi_lite_wr_addr_if)::get(this, get_full_name(), "axi_if", vif))
-    `uvm_error("NOVIF", {"virtual interface must be set for: ", get_full_name(), ".vif"})
+    `uvm_error(report_id, {"virtual interface must be set for: ", get_full_name(), ".vif"})
 endfunction : connect_phase
 
 task axi_lite_wr_addr_master_driver::run_phase(uvm_phase phase);
@@ -45,7 +46,7 @@ endtask : get_and_drive
 task axi_lite_wr_addr_master_driver::reset_signals();
   forever begin
     @(negedge vif.reset_n);  // Wait for reset signal to go low
-    uvm_report_info("AXI_WR_ADDR_MASTER_DRIVER", "Reset observed", UVM_MEDIUM);
+    uvm_report_info(report_id, "Reset observed", UVM_MEDIUM);
     vif.AWVALID <= 1'b0;    
   end
 endtask : reset_signals

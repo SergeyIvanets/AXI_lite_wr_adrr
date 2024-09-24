@@ -1,9 +1,10 @@
 `timescale 100ps/100ps 
 class axi_lite_wr_addr_test extends uvm_test;
   `uvm_component_utils(axi_lite_wr_addr_test)
+  const string report_id="TEST";
 
   parameter LATENCY = 3;      // Define parameter for latency
-  int TRANS_COUNT = 10; // after radomize with constraint
+  parameter TRANS_COUNT = 10; // after radomize with constraint
 
   axi_lite_wr_addr_env env;
   virtual axi_lite_wr_addr_if vif;
@@ -26,10 +27,10 @@ function void axi_lite_wr_addr_test::build_phase(uvm_phase phase);
   super.build_phase(phase);
 
   uvm_config_db #(int)::set(null, "*", "LATENCY", LATENCY);
-  `uvm_info("", $sformatf("The value of LATENCY is: %0d", LATENCY), UVM_LOW);
+  `uvm_info(report_id, $sformatf("The value of LATENCY is: %0d", LATENCY), UVM_LOW);
 
   uvm_config_db#(int)::set(this, "*", "TRANS_COUNT", TRANS_COUNT);
-  `uvm_info("", $sformatf("The value of  TRANS_COUNT is: %0d", TRANS_COUNT), UVM_LOW);
+  `uvm_info(report_id, $sformatf("The value of  TRANS_COUNT is: %0d", TRANS_COUNT), UVM_LOW);
 
   if (!uvm_config_db#(virtual axi_lite_wr_addr_if)::get(this, "", "axi_if", vif)) begin
     `uvm_fatal(":", "Virtual interface not found.");
@@ -47,7 +48,7 @@ function void axi_lite_wr_addr_test::build_phase(uvm_phase phase);
   slave_cfg.vif = vif;
   uvm_config_db#(axi_lite_wr_addr_slave_config)::set(this, "env.slave_agent", "cfg", slave_cfg);
   
-  `uvm_info("", $sformatf("Build phase done"), UVM_LOW);
+  `uvm_info(report_id, $sformatf("Build phase done"), UVM_LOW);
 
 endfunction : build_phase
 

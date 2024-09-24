@@ -1,5 +1,6 @@
 class axi_lite_wr_addr_slave_agent extends uvm_agent;
   `uvm_component_utils(axi_lite_wr_addr_slave_agent)
+  const string report_id="SLAVE AGENT";
 
   uvm_active_passive_enum is_active = UVM_ACTIVE;
 
@@ -9,6 +10,8 @@ class axi_lite_wr_addr_slave_agent extends uvm_agent;
   axi_lite_wr_addr_slave_driver driver;
   axi_lite_wr_addr_slave_sequencer sequencer;
   axi_lite_wr_addr_slave_monitor monitor;
+
+  int t_trans_count;
 
   function new(string name, uvm_component parent);
     super.new(name, parent);
@@ -31,15 +34,17 @@ function void axi_lite_wr_addr_slave_agent::build_phase(uvm_phase phase);
     end
     
     vif = cfg.vif;
-      
-    if (cfg == null) begin
-      `uvm_fatal("NO_CFG", "Slave agent configuration not provided.");
-    end
 
     monitor = axi_lite_wr_addr_slave_monitor::type_id::create("monitor", this);
     if (is_active == UVM_ACTIVE) begin
         sequencer = axi_lite_wr_addr_slave_sequencer::type_id::create("sequencer", this);
         driver = axi_lite_wr_addr_slave_driver::type_id::create("driver", this);
+
+        if (!uvm_config_db#(int)::get(this, "", "TRANS_COUNT", t_trans_count)) begin
+          `uvm_fatal(report_id, "TRANS_COUNT not set in the UVM config DB");
+        end
+        sequencer.trans_count = t_trans_count;
+        `uvm_info(report_id, $sformatf("Slave agent trans_count: %0d", t_trans_count), UVM_LOW);
     end
 endfunction : build_phase
 
