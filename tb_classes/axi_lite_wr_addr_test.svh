@@ -70,7 +70,7 @@ task axi_lite_wr_addr_test::run_phase(uvm_phase phase);
       slave_seq.start(env.slave_agent.sequencer);
     join_none
 
-    #1000ns;
+    #854ns;
 
     phase.drop_objection(this);
 endtask : run_phase

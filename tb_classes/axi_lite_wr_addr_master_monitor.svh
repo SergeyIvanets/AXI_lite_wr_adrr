@@ -38,14 +38,11 @@ task axi_lite_wr_addr_master_monitor::run_phase(uvm_phase phase);
     if (vif.AWVALID) begin
       trans_collected = axi_lite_wr_addr_transaction::type_id::create("trans_collected");
       trans_collected.AWADDR  = vif.AWADDR;
-      `uvm_info(report_id, $sformatf("AWADDR collected by master monitor:%h", trans_collected.AWADDR), UVM_LOW);
 
-      // Send the collected transaction through the analysis port
       item_collected_port.write(trans_collected);
 
-      // Log the transaction and increment the transaction count
       `uvm_info(report_id, $sformatf("Transfer collected master monitor:\n%s",
-                                          trans_collected.sprint()), UVM_HIGH);
+                 trans_collected.sprint()), UVM_HIGH);
       num_transactions++;
     end
   end
@@ -53,5 +50,5 @@ endtask : run_phase
 
 function void axi_lite_wr_addr_master_monitor::report_phase(uvm_phase phase);
   `uvm_info(report_id, $sformatf("Report: Master monitor collected %0d transfers", 
-                                        num_transactions), UVM_LOW);
+            num_transactions), UVM_LOW);
 endfunction : report_phase

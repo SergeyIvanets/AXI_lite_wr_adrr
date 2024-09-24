@@ -44,7 +44,6 @@ function void axi_lite_wr_addr_slave_agent::build_phase(uvm_phase phase);
           `uvm_fatal(report_id, "TRANS_COUNT not set in the UVM config DB");
         end
         sequencer.trans_count = t_trans_count;
-        `uvm_info(report_id, $sformatf("Slave agent trans_count: %0d", t_trans_count), UVM_LOW);
     end
 endfunction : build_phase
 
