@@ -1,9 +1,13 @@
+`uvm_analysis_imp_decl(_master) 
+`uvm_analysis_imp_decl(_slave)  
+
 class axi_lite_wr_addr_scoreboard extends uvm_scoreboard;
   `uvm_component_utils(axi_lite_wr_addr_scoreboard)
   const string report_id="SCOREBOARD";
 
-  uvm_analysis_imp #(axi_lite_wr_addr_transaction, axi_lite_wr_addr_scoreboard) master_analysis_export;
-  uvm_tlm_analysis_fifo #(axi_lite_wr_addr_transaction) slave_analysis_fifo;
+  //uvm_analysis_imp #(axi_lite_wr_addr_transaction, axi_lite_wr_addr_scoreboard) master_analysis_export;
+  uvm_analysis_imp_master #(axi_lite_wr_addr_transaction, axi_lite_wr_addr_scoreboard) master_analysis_export;
+  uvm_analysis_imp_slave  #(axi_lite_wr_addr_transaction, axi_lite_wr_addr_scoreboard) slave_analysis_export;
 
   axi_lite_wr_addr_transaction master_trans_queue[$];
   axi_lite_wr_addr_transaction slave_trans_queue[$];
@@ -14,12 +18,11 @@ class axi_lite_wr_addr_scoreboard extends uvm_scoreboard;
   function new(string name, uvm_component parent);
     super.new(name, parent);
     master_analysis_export = new("master_analysis_export", this);
-    slave_analysis_fifo = new("slave_analysis_fifo", this);
+    slave_analysis_export  = new("slave_analysis_export", this);
   endfunction
 
-  extern function void write(axi_lite_wr_addr_transaction t);
-  extern task handle_slave_transactions();
-  extern task run_phase(uvm_phase phase);
+  extern function void write_master(axi_lite_wr_addr_transaction t);
+  extern function void write_slave(axi_lite_wr_addr_transaction t);
   extern function void compare_transactions();
   extern function void report_phase(uvm_phase phase);
 
@@ -28,30 +31,16 @@ endclass : axi_lite_wr_addr_scoreboard
 // IMPLEMENTATION
 //---------------------------------------------------------------------------------------
 
-function void axi_lite_wr_addr_scoreboard::write(axi_lite_wr_addr_transaction t);
+function void axi_lite_wr_addr_scoreboard::write_master(axi_lite_wr_addr_transaction t);
   master_trans_queue.push_back(t);
 //  `uvm_info(report_id, $sformatf("Master transaction collected: %h", t.AWADDR), UVM_LOW);
   compare_transactions();
-endfunction : write
+endfunction : write_master
 
-task axi_lite_wr_addr_scoreboard::handle_slave_transactions();
-  axi_lite_wr_addr_transaction slave_trans;
-
-  while (slave_analysis_fifo.try_get(slave_trans)) begin
-    slave_trans_queue.push_back(slave_trans);
-//    `uvm_info(report_id, $sformatf("Slave transaction collected: %h", slave_trans.AWADDR), UVM_LOW);
+function void axi_lite_wr_addr_scoreboard::write_slave(axi_lite_wr_addr_transaction t);
+  slave_trans_queue.push_back(t);
   compare_transactions();
-  end
-endtask : handle_slave_transactions
-
-task axi_lite_wr_addr_scoreboard::run_phase(uvm_phase phase);
-  phase.raise_objection(this);
-    forever begin
-      handle_slave_transactions();
-      #10ns;
-    end
-  phase.drop_objection(this);
-endtask : run_phase
+endfunction : write_slave
 
 function void axi_lite_wr_addr_scoreboard::compare_transactions();
   if (master_trans_queue.size() > 0 && slave_trans_queue.size() > 0) begin

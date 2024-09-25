@@ -33,14 +33,11 @@ task axi_lite_wr_addr_master_monitor::run_phase(uvm_phase phase);
   axi_lite_wr_addr_transaction trans_collected;
 
   forever begin
-    @(posedge vif.clk);
-    
+    @(posedge vif.clk);    
     if (vif.AWVALID) begin
       trans_collected = axi_lite_wr_addr_transaction::type_id::create("trans_collected");
       trans_collected.AWADDR  = vif.AWADDR;
-
       item_collected_port.write(trans_collected);
-
       `uvm_info(report_id, $sformatf("Transfer collected master monitor:\n%s",
                  trans_collected.sprint()), UVM_HIGH);
       num_transactions++;
