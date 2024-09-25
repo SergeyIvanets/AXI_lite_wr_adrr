@@ -31,15 +31,24 @@ endfunction : connect_phase
 
 task axi_lite_wr_addr_master_monitor::run_phase(uvm_phase phase);
   axi_lite_wr_addr_transaction trans_collected;
+  logic [31:0] temp_addr;
 
   forever begin
     @(posedge vif.clk);    
     if (vif.AWVALID) begin
       trans_collected = axi_lite_wr_addr_transaction::type_id::create("trans_collected");
-      trans_collected.AWADDR  = vif.AWADDR;
-      item_collected_port.write(trans_collected);
-      `uvm_info(report_id, $sformatf("Transfer collected master monitor:\n%s",
-                 trans_collected.sprint()), UVM_HIGH);
+      temp_addr = vif.AWADDR;
+      if (vif.AWREADY) begin
+        if (temp_addr == vif.AWADDR) begin
+          trans_collected.AWADDR  = vif.AWADDR;
+          item_collected_port.write(trans_collected);
+          `uvm_info(report_id, $sformatf("Transfer collected master monitor:\n%s",
+                    trans_collected.sprint()), UVM_HIGH);
+        end 
+        else begin
+          `uvm_error(report_id, "Address changed during AXI write transaction");
+        end
+      end
       num_transactions++;
     end
   end

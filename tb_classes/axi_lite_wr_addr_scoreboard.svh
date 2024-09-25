@@ -48,13 +48,15 @@ function void axi_lite_wr_addr_scoreboard::compare_transactions();
     axi_lite_wr_addr_transaction slave_trans = slave_trans_queue.pop_front();
 
     if (master_trans.AWADDR != slave_trans.AWADDR) begin
+      num_mismatch_transactions++;
       `uvm_error(report_id, $sformatf(
         "Address mismatch: Master AWADDR = %0h, Slave AWADDR = %0h, mismatch transaction = %0d", 
-        master_trans.AWADDR, slave_trans.AWADDR, num_mismatch_transactions++));
+        master_trans.AWADDR, slave_trans.AWADDR, num_mismatch_transactions));
     end else begin
+      num_match_transactions++;
       `uvm_info(report_id, $sformatf(
         "Address match: Master AWADDR = %h, Slave AWADDR = %h, match transaction = %0d", 
-        master_trans.AWADDR, slave_trans.AWADDR, num_match_transactions++), UVM_LOW);
+        master_trans.AWADDR, slave_trans.AWADDR, num_match_transactions), UVM_LOW);
     end
   end
 endfunction : compare_transactions

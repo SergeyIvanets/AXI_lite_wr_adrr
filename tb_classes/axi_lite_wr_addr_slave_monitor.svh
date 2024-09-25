@@ -34,7 +34,7 @@ function void axi_lite_wr_addr_slave_monitor::connect_phase(uvm_phase phase);
 
     forever begin
       @(posedge vif.clk);
-      if (vif.AWVALID) begin
+      if (vif.AWREADY) begin
         trans_collected = axi_lite_wr_addr_transaction::type_id::create("trans_collected");
         trans_collected.AWADDR  = vif.AWADDR;
         item_collected_port.write(trans_collected);

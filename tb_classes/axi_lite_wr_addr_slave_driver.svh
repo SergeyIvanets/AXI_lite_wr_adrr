@@ -21,7 +21,6 @@ endclass : axi_lite_wr_addr_slave_driver
 //---------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //---------------------------------------------------------------------------------------
-
 function void axi_lite_wr_addr_slave_driver::build_phase(uvm_phase phase);
   super.build_phase(phase);
   
@@ -30,7 +29,6 @@ function void axi_lite_wr_addr_slave_driver::build_phase(uvm_phase phase);
   end
 endfunction : build_phase
 
-// UVM connect_phase - gets the vif as a config property
 function void axi_lite_wr_addr_slave_driver::connect_phase(uvm_phase phase);
   super.connect_phase(phase);
   if (!uvm_config_db #(virtual axi_lite_wr_addr_if)::get(this, get_full_name(), "axi_if", vif))
@@ -44,7 +42,6 @@ task axi_lite_wr_addr_slave_driver::run_phase(uvm_phase phase);
   join
 endtask : run_phase
 
-// Manages the interaction between driver and sequencer
 task axi_lite_wr_addr_slave_driver::get_and_drive();
   forever begin
     seq_item_port.get_next_item(trans);
@@ -53,16 +50,14 @@ task axi_lite_wr_addr_slave_driver::get_and_drive();
   end
 endtask : get_and_drive
 
-// Reset the AWVALID signal when reset is observed
 task axi_lite_wr_addr_slave_driver::reset_signals();
   forever begin
-    @(negedge vif.reset_n);  // Wait for reset signal to go low
+    @(negedge vif.reset_n);  
     uvm_report_info(report_id, "Reset observed", UVM_MEDIUM);
     vif.AWREADY <= 1'b0; 
   end
 endtask : reset_signals
 
-// Drive AWREADY in response to AWVALID from master
 task axi_lite_wr_addr_slave_driver::drive_transfer();
   int delay_counter; 
   delay_counter = latency_value;
@@ -73,12 +68,10 @@ task axi_lite_wr_addr_slave_driver::drive_transfer();
     @(posedge vif.clk);
     delay_counter--;
   end
-
+// 1 cycle AWREADY
   @(posedge vif.clk) begin
     vif.AWREADY <= 1'b1;
   end
-
-  wait (!vif.AWVALID);
   @(posedge vif.clk);
   vif.AWREADY <= 1'b0;
 endtask : drive_transfer
